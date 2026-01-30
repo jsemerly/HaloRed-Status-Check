@@ -31,6 +31,7 @@
       grid-template-columns: 1.15fr 0.85fr;
     }
 
+    /* LEFT */
     .left{
       background: var(--bg-dark);
       padding: 36px 32px;
@@ -39,6 +40,7 @@
       gap: 28px;
     }
 
+    /* Bigger logo */
     .brand{
       display:flex;
       justify-content:center;
@@ -64,6 +66,7 @@
       box-shadow: 0 18px 60px rgba(0,0,0,.55);
     }
 
+    /* RIGHT */
     .right{
       background: var(--panel);
       padding: 40px 36px;
@@ -156,12 +159,41 @@
     }
     .error.show{ display:block; }
 
+    /* link styling inside the message */
     #resultMessage a{
       color: #0b57d0;
       font-weight: 800;
       text-decoration: underline;
     }
 
+    /* Support / delivery note (matches screenshot) */
+    .support-note{
+      margin-top: 26px;
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #0d0f10;
+    }
+
+    .support-note strong{
+      display: block;
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    .support-note a{
+      color: #0d0f10;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .support-note .highlight{
+      margin-top: 10px;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    /* MOBILE */
     @media (max-width: 900px){
       .wrap{ grid-template-columns: 1fr; }
       .brand img{ height: 52px; }
@@ -172,16 +204,20 @@
 <body>
 <div class="wrap">
 
+  <!-- LEFT -->
   <section class="left">
     <div class="brand">
+      <!-- Replace with your logo file -->
       <img src="halotherapy-logo.png" alt="Halotherapy Solutions">
     </div>
 
     <div class="hero">
+      <!-- Replace with your HaloRed image -->
       <img src="halored-hero.png" alt="HaloRed Unit">
     </div>
   </section>
 
+  <!-- RIGHT -->
   <section class="right">
     <div class="panel">
       <h1>Where is My HaloRed?</h1>
@@ -202,30 +238,47 @@
           <div class="pill" id="statusPill"></div>
         </div>
 
+        <!-- We use innerHTML so the Order Confirmation Form link is clickable -->
         <div id="resultMessage"></div>
         <div class="muted">If you believe this is incorrect, please contact our team.</div>
       </div>
+
+      <!-- Support note (under panel content) -->
+      <div class="support-note">
+        <strong>Questions?</strong>
+
+        <a href="mailto:delivery@halotherapysolutions.com">
+          delivery@halotherapysolutions.com
+        </a><br>
+
+        <a href="tel:18334460445">
+          (833)-446-0445, press Option #3
+        </a>
+
+        <div class="highlight">
+          *** All enclosure deliveries are CURBSIDE ***<br>
+          unless quoted and invoiced for inside delivery!
+        </div>
+      </div>
+
     </div>
-    <div>   
-        delivery@halotherapysolutions.com
-        (833)-446-0445, press Option #3
-
-        ***All enclosure deliveries are CURBSIDE unless quoted and invoiced for inside delivery!***
-        For general or technical questions, please contact service@halotherapysolutions.com 
-        OR CLICK HERE to submit a service ticket
-    </div>  
-</section>
-
+  </section>
 
 </div>
 
 <script>
+  // ✅ Your Apps Script Web App URL
   const SCRIPT_WEBAPP_URL =
     "https://script.google.com/macros/s/AKfycbzC6_N0cMB066lWHd7SxPWdy0YNeBPdmTt56F71ONMlnsMnzr1imnQDlHvymQMmFqyt/exec";
 
   const ORDER_FORM_URL =
     "https://docs.google.com/forms/d/e/1FAIpQLSd6BcB7tGAoqc0Y2-10Be9gRTTUZoXvu3dBkZn1CuADjsv2Qw/viewform";
 
+  // Status messages (HTML)
+  // INPUT fields:
+  // - ETA (ESTONIA): data.eta (column I)
+  // - ETA (USA): data.tracking (column L)
+  // - Delivered: data.deliveredDate (column O)
   const STATUS_MESSAGES = {
     "Awaiting Production": () => `
       Your HaloRed is awaiting production. This means we are waiting for our production team to begin building your unit -- Before production can happen, we need you to complete your agreed upon payment terms AND fill out our Order Confirmation Form to get on a delivery schedule.
@@ -295,8 +348,14 @@
     errorBox.textContent = "";
   }
 
+  // Normalize SO for input (keeps "SO" prefix in display; Apps Script can normalize independently)
   function normalizeSO(raw){
-    return (raw || "").trim().toUpperCase().replace(/\s+/g, "");
+    return (raw || "")
+      .toUpperCase()
+      .replace(/\u00A0/g, " ")
+      .replace(/\s+/g, "")
+      .replace(/[-_]/g, "")
+      .trim();
   }
 
   function escapeHtml(str){
@@ -329,12 +388,14 @@
         return;
       }
 
-      const status = (data.status || "").trim(); // ✅ normalize status
+      const status = (data.status || "").trim();
       statusPill.textContent = status || "Unknown";
       resultMeta.textContent = `SO: ${data.so} • ${data.name || "Customer"}`;
 
       const formatter = STATUS_MESSAGES[status];
-      const html = formatter ? formatter(data) : `No status message found for: <strong>${escapeHtml(status || "Unknown")}</strong>`;
+      const html = formatter
+        ? formatter(data)
+        : `No status message found for: <strong>${escapeHtml(status || "Unknown")}</strong>`;
       resultMessage.innerHTML = html;
 
       resultBox.classList.add("show");
