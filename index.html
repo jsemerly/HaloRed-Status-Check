@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Where is My HaloRed?</title>
+  <style>
+    :root{
+      --bg-dark: #111;
+      --panel: #8fbfbe;         /* teal-ish like your mock */
+      --text: #0d0f10;
+      --muted: rgba(0,0,0,.65);
+      --btn: #111;
+      --btnText: #fff;
+      --card: #ffffff;
+      --radius: 16px;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:#0b0b0b;
+      color: var(--text);
+    }
+
+    .wrap{
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+
+    /* LEFT */
+    .left{
+      position: relative;
+      background: var(--bg-dark);
+      padding: 28px 28px 22px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+    }
+
+    .brand img{
+      height: 32px;
+      width: auto;
+      display:block;
+    }
+
+    .hero{
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 0;
+    }
+
+    .hero img{
+      width: min(520px, 92%);
+      border-radius: 8px;
+      display:block;
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+    }
+
+    /* RIGHT */
+    .right{
+      background: var(--panel);
+      padding: 36px 34px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .panel{
+      width: min(520px, 100%);
+    }
+
+    h1{
+      margin: 0 0 22px 0;
+      font-size: clamp(26px, 3vw, 34px);
+      letter-spacing: -0.02em;
+    }
+
+    label{
+      display:block;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+
+    .inputRow{
+      display:flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    input{
+      width: 100%;
+      border: 0;
+      outline: none;
+      background: rgba(255,255,255,.7);
+      padding: 14px 14px;
+      border-radius: 8px;
+      font-size: 18px;
+    }
+
+    .btn{
+      margin-top: 12px;
+      width: 100%;
+      border: 0;
+      cursor: pointer;
+      background: var(--btn);
+      color: var(--btnText);
+      padding: 14px 16px;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: 800;
+      transition: transform .06s ease, opacity .2s ease;
+    }
+    .btn:active{ transform: scale(0.99); }
+    .btn[disabled]{ opacity: .6; cursor:not-allowed; }
+
+    .result{
+      margin-top: 18px;
+      background: rgba(255,255,255,.75);
+      border-radius: var(--radius);
+      padding: 14px 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+      display:none;
+    }
+    .result.show{ display:block; }
+
+    .result .top{
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .pill{
+      font-size: 12px;
+      font-weight: 800;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.1);
+      color: rgba(0,0,0,.8);
+      white-space: nowrap;
+    }
+
+    .muted{
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    .err{
+      margin-top: 12px;
+      color: #7a0b0b;
+      font-weight: 700;
+      display:none;
+    }
+    .err.show{ display:block; }
+
+    /* MOBILE */
+    @media (max-width: 900px){
+      .wrap{
+        grid-template-columns: 1fr;
+      }
+      .left{
+        min-height: 46vh;
+      }
+      .right{
+        min-height: 54vh;
+      }
+      .brand{
+        justify-content:center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <!-- LEFT SIDE -->
+    <section class="left">
+      <div class="brand">
+        <!-- Replace with your logo file path -->
+        <img src="halotherapy-logo.png" alt="Halotherapy Solutions logo" />
+      </div>
+
+      <div class="hero">
+        <!-- Replace with your HaloRed product image path -->
+        <img src="halored-hero.png" alt="HaloRed unit" />
+      </div>
+    </section>
+
+    <!-- RIGHT SIDE -->
+    <section class="right">
+      <div class="panel">
+        <h1>Where is My HaloRed?</h1>
+
+        <label for="soInput">Sales Order Number:</label>
+        <div class="inputRow">
+          <input id="soInput" placeholder="SO:" autocomplete="off" />
+        </div>
+
+        <button id="checkBtn" class="btn">Check Status</button>
+
+        <div id="errorBox" class="err"></div>
+
+        <div id="resultBox" class="result">
+          <div class="top">
+            <div>
+              <div style="font-weight:900" id="resultTitle">Status Found</div>
+              <div class="muted" id="resultMeta"></div>
+            </div>
+            <div class="pill" id="statusPill">—</div>
+          </div>
+
+          <div id="resultMessage" style="font-size:16px; line-height:1.35;">
+            <!-- message goes here -->
+          </div>
+
+          <div class="muted" id="resultHint"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // 1) Replace this with your deployed Google Apps Script Web App URL
+    // It will look like: https://script.google.com/macros/s/AKfycbxxxxxx/exec
+    const SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzC6_N0cMB066lWHd7SxPWdy0YNeBPdmTt56F71ONMlnsMnzr1imnQDlHvymQMmFqyt/exec";
+
+    // 2) Status messages (placeholders for now — you said you'll provide the real ones next)
+    // Match these keys EXACTLY to your sheet headers.
+    const STATUS_MESSAGES = {
+      "Awaiting Production": "Your order is logged and queued. Production has not started yet.",
+      "In Production": "Your HaloRed is currently being built. We’ll update you when it ships.",
+      "Sent Out": "Your order has left our facility and is in transit.",
+      "ETA": "Your order is on the way and we have an estimated arrival window.",
+      "Delivered": "Your HaloRed has been marked delivered. If you don’t see it, contact support."
+    };
+
+    const soInput = document.getElementById("soInput");
+    const checkBtn = document.getElementById("checkBtn");
+    const errorBox = document.getElementById("errorBox");
+
+    const resultBox = document.getElementById("resultBox");
+    const statusPill = document.getElementById("statusPill");
+    const resultMeta = document.getElementById("resultMeta");
+    const resultMessage = document.getElementById("resultMessage");
+    const resultHint = document.getElementById("resultHint");
+
+    function showError(msg){
+      errorBox.textContent = msg;
+      errorBox.classList.add("show");
+      resultBox.classList.remove("show");
+    }
+    function clearError(){
+      errorBox.textContent = "";
+      errorBox.classList.remove("show");
+    }
+    function setLoading(isLoading){
+      checkBtn.disabled = isLoading;
+      checkBtn.textContent = isLoading ? "Checking..." : "Check Status";
+    }
+
+    function normalizeSO(raw){
+      if(!raw) return "";
+      // trim, uppercase, remove spaces
+      return raw.trim().toUpperCase().replace(/\s+/g, "");
+    }
+
+    async function checkStatus(){
+      clearError();
+      const so = normalizeSO(soInput.value);
+
+      if(!so){
+        showError("Please enter your Sales Order number (e.g., SO12345).");
+        return;
+      }
+
+      if(SCRIPT_WEBAPP_URL === "YOUR_SCRIPT_WEBAPP_URL"){
+        showError("You haven’t added your Google Apps Script Web App URL yet.");
+        return;
+      }
+
+      setLoading(true);
+
+      try{
+        // We pass ?so=SO12345
+        const url = `${SCRIPT_WEBAPP_URL}?so=${encodeURIComponent(so)}`;
+        const res = await fetch(url, { method: "GET" });
+
+        if(!res.ok){
+          throw new Error(`Request failed (${res.status})`);
+        }
+
+        const data = await res.json();
+
+        // Expected response shape from Apps Script:
+        // { ok: true, so: "SO12345", name: "Jane Doe", status: "In Production" }
+        if(!data.ok){
+          showError(data.error || "SO not found. Double-check and try again.");
+          return;
+        }
+
+        const status = data.status;
+        const name = data.name || "Customer";
+
+        statusPill.textContent = status || "Unknown";
+        resultMeta.textContent = `SO: ${data.so} • ${name}`;
+
+        const msg = STATUS_MESSAGES[status] || `Your order status is: ${status}`;
+        resultMessage.textContent = msg;
+
+        resultHint.textContent = "If you believe this is incorrect, please contact our team with your SO number.";
+        resultBox.classList.add("show");
+      } catch(err){
+        showError("Couldn’t load your status right now. Please try again in a moment.");
+        console.error(err);
+      } finally{
+        setLoading(false);
+      }
+    }
+
+    checkBtn.addEventListener("click", checkStatus);
+    soInput.addEventListener("keydown", (e) => {
+      if(e.key === "Enter") checkStatus();
+    });
+  </script>
+</body>
+</html>
