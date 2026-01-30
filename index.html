@@ -31,7 +31,6 @@
       grid-template-columns: 1.15fr 0.85fr;
     }
 
-    /* LEFT */
     .left{
       background: var(--bg-dark);
       padding: 36px 32px;
@@ -40,7 +39,6 @@
       gap: 28px;
     }
 
-    /* Bigger logo */
     .brand{
       display:flex;
       justify-content:center;
@@ -66,7 +64,6 @@
       box-shadow: 0 18px 60px rgba(0,0,0,.55);
     }
 
-    /* RIGHT */
     .right{
       background: var(--panel);
       padding: 40px 36px;
@@ -159,14 +156,12 @@
     }
     .error.show{ display:block; }
 
-    /* link styling inside the message */
     #resultMessage a{
       color: #0b57d0;
       font-weight: 800;
       text-decoration: underline;
     }
 
-    /* MOBILE */
     @media (max-width: 900px){
       .wrap{ grid-template-columns: 1fr; }
       .brand img{ height: 52px; }
@@ -177,20 +172,16 @@
 <body>
 <div class="wrap">
 
-  <!-- LEFT -->
   <section class="left">
     <div class="brand">
-      <!-- Replace with your logo file -->
       <img src="halotherapy-logo.png" alt="Halotherapy Solutions">
     </div>
 
     <div class="hero">
-      <!-- Replace with your HaloRed image -->
       <img src="halored-hero.png" alt="HaloRed Unit">
     </div>
   </section>
 
-  <!-- RIGHT -->
   <section class="right">
     <div class="panel">
       <h1>Where is My HaloRed?</h1>
@@ -211,7 +202,6 @@
           <div class="pill" id="statusPill"></div>
         </div>
 
-        <!-- We use innerHTML so the Order Confirmation Form link is clickable -->
         <div id="resultMessage"></div>
         <div class="muted">If you believe this is incorrect, please contact our team.</div>
       </div>
@@ -221,18 +211,12 @@
 </div>
 
 <script>
-  // ✅ Your Apps Script Web App URL
   const SCRIPT_WEBAPP_URL =
     "https://script.google.com/macros/s/AKfycbzC6_N0cMB066lWHd7SxPWdy0YNeBPdmTt56F71ONMlnsMnzr1imnQDlHvymQMmFqyt/exec";
 
   const ORDER_FORM_URL =
     "https://docs.google.com/forms/d/e/1FAIpQLSd6BcB7tGAoqc0Y2-10Be9gRTTUZoXvu3dBkZn1CuADjsv2Qw/viewform";
 
-  // Status messages (HTML) — matches your latest screenshot
-  // INPUT fields:
-  // - ETA (ESTONIA): data.eta (column I)
-  // - ETA (USA): data.tracking (column L)
-  // - Delivered: data.deliveredDate (column O)
   const STATUS_MESSAGES = {
     "Awaiting Production": () => `
       Your HaloRed is awaiting production. This means we are waiting for our production team to begin building your unit -- Before production can happen, we need you to complete your agreed upon payment terms AND fill out our Order Confirmation Form to get on a delivery schedule.
@@ -254,7 +238,7 @@
     `,
 
     "ETA (ESTONIA)": (data) => {
-      const etaText = (data.eta && data.eta.trim()) ? data.eta.trim() : "TBD";
+      const etaText = (data.eta && String(data.eta).trim()) ? String(data.eta).trim() : "TBD";
       return `
         Your HaloRed is on its way! It is expected to reach your local airport in <strong>${escapeHtml(etaText)}</strong>
         <br><br>
@@ -263,7 +247,7 @@
     },
 
     "ETA (USA)": (data) => {
-      const tracking = (data.tracking && data.tracking.trim()) ? data.tracking.trim() : "TBD";
+      const tracking = (data.tracking && String(data.tracking).trim()) ? String(data.tracking).trim() : "TBD";
       return `
         Your HaloRed is on its way!
         <br>
@@ -274,7 +258,7 @@
     },
 
     "Delivered": (data) => {
-      const deliveredText = (data.deliveredDate && data.deliveredDate.trim()) ? data.deliveredDate.trim() : "TBD";
+      const deliveredText = (data.deliveredDate && String(data.deliveredDate).trim()) ? String(data.deliveredDate).trim() : "TBD";
       return `
         Your HaloRed was delivered on:
         <br>
@@ -306,7 +290,6 @@
     return (raw || "").trim().toUpperCase().replace(/\s+/g, "");
   }
 
-  // Basic HTML escape for any values coming from the sheet (eta/tracking/dates)
   function escapeHtml(str){
     return String(str)
       .replaceAll("&", "&amp;")
@@ -337,11 +320,12 @@
         return;
       }
 
-      statusPill.textContent = data.status || "Unknown";
+      const status = (data.status || "").trim(); // ✅ normalize status
+      statusPill.textContent = status || "Unknown";
       resultMeta.textContent = `SO: ${data.so} • ${data.name || "Customer"}`;
 
-      const formatter = STATUS_MESSAGES[data.status];
-      const html = formatter ? formatter(data) : `Status: ${escapeHtml(data.status)}`;
+      const formatter = STATUS_MESSAGES[status];
+      const html = formatter ? formatter(data) : `No status message found for: <strong>${escapeHtml(status || "Unknown")}</strong>`;
       resultMessage.innerHTML = html;
 
       resultBox.classList.add("show");
